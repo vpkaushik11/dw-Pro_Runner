@@ -1,0 +1,13 @@
+body{
+    background-color: teal;
+    color: white;
+}
+header{
+    text-align: center;
+    background-color: white;
+    color: black;
+}
+#canvas{
+    background-color: white;
+    color: black;
+}
