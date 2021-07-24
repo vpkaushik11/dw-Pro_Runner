@@ -12,7 +12,8 @@ let scoreText = document.getElementById('Score');
 let highscore;
 let highscoreText = document.getElementById('HighScore');
 let gravity;
-let hole = [];
+let holes = [];
+let h;
 
 document.addEventListener('keydown', function(e){
     keys[e.code] = true;
@@ -93,27 +94,28 @@ class Avenger{
 
 // for cracks in the ceiling and ground
 class Crack {
-  constructor (x, y, w, h, c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
-
+  constructor() {
+    this.x = canvas.width + 200;
+    this.w = 300;
+    this.c = '#404040';
     this.dx = -speed;
+    let type = Math.round(Math.random());
+    if(type === 1) {
+      this.state = "up";
+      this.y = 0;
+      this.h = canvas.height/2 - 150;
+    } else {
+      this.state = "down"
+      this.y = canvas.height/2 + 150;
+      this.h = canvas.height/2 - 150;
+    }
   }
-
-  Update () {
+  Update() {
     this.x += this.dx;
     this.Draw();
     this.dx = -speed;
-
-    if( this.x + this.w < 0){
-      this.x =  canvas.width + 50;
-    }
   }
-
-  Draw () {
+  Draw() {
     ctx.beginPath();
     ctx.fillStyle = this.c;
     ctx.fillRect(this.x, this.y, this.w, this.h);
@@ -164,13 +166,13 @@ function SpawnObstacle () {
 
 // for deplyong the ceiling gap
 function crackhead(){
-  let size2 = RandomIntInRange(50, 100);
-  let gap = new Crack(canvas.width, 0, size2, h1, 'black');
+ // let size2 = RandomIntInRange(50, 100);
+ // let gap = new Crack(canvas.width, 0, size2, h1, 'black');
+    let hole = new Crack();
+    console.log(holes);
+    holes.push(hole);
 
-  gap.Update();
   //hole.push(gap);
-
-
 }
 
 
@@ -179,22 +181,15 @@ function RandomIntInRange (min, max) {
 }
 
 function Start () {
-
     speed = 3;
     gravity = 1;
-  
     score = 0;
     highscore = 0;
     if (localStorage.getItem('highscore')) {
       highscore = localStorage.getItem('highscore');
     }
-
     highscoreText.textContent = "HighScore: " + highscore;
-  
     avenger = new Avenger (50, h2 - 50, 50, 50, 'rgb(0, 132, 255)');
-  
-  //  scoreText = new Text("Score: " + score, 25, 25, "left", "#212121", "20");
-  //  highscoreText = new Text("Highscore: " + highscore, canvas.width - 25, 25, "right", "#212121", "20");
   
     requestAnimationFrame(_Update);
 }
@@ -209,13 +204,12 @@ function _Update () {
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     //_update();
-  
     spawnTimer--;
     if (spawnTimer <= 0) {
       SpawnObstacle();
       crackhead();
       console.log(chitauri);
-      console.log(hole);
+      console.log(holes);
       spawnTimer = initialSpawnTimer - speed * 8;
       
       if (spawnTimer < 60) {
@@ -246,10 +240,26 @@ function _Update () {
       o.Update();
     }
 
+    for(let i=0; i<holes.length; i++) {
+      h = holes[i];
+      if(h.x + h.width < 0) {
+        holes.splice(i, 1);
+      }
+      if((player.state == h.state) && (player.x + player.width > h.x) && (player.x < h.x + h.width)) {
+        chitauri = [];
+        hole = [];
+        alert(`GAME OVER\nScore = ${score}\nHigh-Score = ${highscore}`)
+        score = 0;
+        spawnTimer = 200;
+        avenger.y = h2 - 50;
+        window.localStorage.setItem('highscore', highscore);
+      }     
+    }
+    h.Update();
     avenger.Animate();
     score++;
     scoreText.textContent = "Score: " + score;
-    
+
     if (score > highscore) {
       highscore = score;
       highscoreText.textContent = "Highscore: " + highscore;
@@ -258,31 +268,4 @@ function _Update () {
     speed += 0.003;
 }
 
-
-function _update(){
-    ctx.clearRect(0, h1, canvas.width, h1);
-    // spawining
-    for (let i = 0; i < hole.length; i++) {
-        let c = hole[i];
-      
-        if (c.x + c.w < 0) {
-          hole.splice(i, 1);
-        }
-      
-        if (avenger.x < c.x + c.w && avenger.x + avenger.w > c.x && avenger.y <= c.y + c.h) //avenger.y < c.y + c.h
-        {
-          chitauri = [];
-          hole = [];
-          alert(`GAME OVER\nScore = ${score}\nHigh-Score = ${highscore}`)
-          score = 0;
-          spawnTimer = initialSpawnTimer;
-          //speed = 0;
-          avenger.y = h2 - 50;
-          //exit();
-          window.localStorage.setItem('highscore', highscore);
-        }
-      c.Update();
-    }
-
-}
 Start();
