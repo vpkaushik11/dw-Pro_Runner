@@ -55,20 +55,6 @@ class Avenger{
       } else {
         this.h = this.originalHeight;
       }
-  
-      //this.y += this.dy;
-  
-      // Gravity
-/*
-      if (this.y + this.h < h2) {
-        this.dy += gravity;
-        this.grounded = false;
-      } else {
-        this.dy = 0;
-        this.grounded = true;
-        this.y = h2 - this.h;
-      }
-*/
       this.Draw();
     }
   
@@ -76,14 +62,9 @@ class Avenger{
       if (this.state == 'down') {
         this.y =  h1;
         this.state = 'up';
-        //this.jumpTimer = 1;
-      //  this.dy = -this.jumpForce;
       } else{
         this.y = h2 - 50;
         this.state =  'down';
-
-        //this.jumpTimer++;
-        //this.dy = -this.jumpForce - (this.jumpTimer / 50);
       }
     }
   
